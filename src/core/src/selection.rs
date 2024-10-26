@@ -17,7 +17,7 @@ pub struct Selection {
     num: Option<u32>,
 
     #[builder(default, setter(strip_option))]
-    scaled: Option<u32>,
+    scaled: Option<u64>,
 
     #[builder(default, setter(strip_option))]
     containment: Option<bool>,
@@ -87,11 +87,11 @@ impl Selection {
         self.num = Some(num);
     }
 
-    pub fn scaled(&self) -> Option<u32> {
+    pub fn scaled(&self) -> Option<u64> {
         self.scaled
     }
 
-    pub fn set_scaled(&mut self, scaled: u32) {
+    pub fn set_scaled(&mut self, scaled: u64) {
         self.scaled = Some(scaled);
     }
 

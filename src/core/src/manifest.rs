@@ -279,7 +279,7 @@ impl Select for Manifest {
             };
             valid = if let Some(scaled) = selection.scaled() {
                 // num sigs have row.scaled = 0, don't include them
-                valid && row.scaled != 0 && row.scaled <= scaled as u64
+                valid && row.scaled != 0 && row.scaled <= scaled
             } else {
                 valid
             };
