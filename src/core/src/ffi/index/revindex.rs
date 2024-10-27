@@ -22,8 +22,8 @@ impl ForeignObject for SourmashRevIndex {
 // TODO: remove this when it is possible to pass Selection thru the FFI
 fn from_template(template: &Sketch) -> Selection {
     let (num, scaled) = match template {
-        Sketch::MinHash(mh) => (mh.num(), mh.scaled() as u32),
-        Sketch::LargeMinHash(mh) => (mh.num(), mh.scaled() as u32),
+        Sketch::MinHash(mh) => (mh.num(), mh.scaled() as u64),
+        Sketch::LargeMinHash(mh) => (mh.num(), mh.scaled() as u64),
         _ => unimplemented!(),
     };
 

@@ -411,7 +411,7 @@ impl RevIndexOps for RevIndex {
             let query_mh = KmerMinHash::from(query.clone());
 
             // just calculate essentials here
-            let gather_result_rank = matches.len();
+            let gather_result_rank = matches.len() as u32;
 
             // grab the specific intersection:
             // Calculate stats
