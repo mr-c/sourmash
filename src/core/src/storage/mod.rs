@@ -72,6 +72,15 @@ pub enum StorageError {
     MissingFeature(String, String),
 }
 
+/// InnerStorage: a catch-all type that allows using any Storage in
+/// parallel contexts.
+///
+/// Arc allows ref counting to share it between threads;
+/// RwLock makes sure there is only one writer possible (and a lot of readers);
+/// dyn Storage so we can init with anything that implements the Storage trait;
+/// Send + Sync + 'static is kind of a cheat to avoid lifetimes issues: we
+///    should get rid of that 'static if possible... -- Luiz.
+
 #[derive(Clone)]
 pub struct InnerStorage(Arc<RwLock<dyn Storage + Send + Sync + 'static>>);
 
