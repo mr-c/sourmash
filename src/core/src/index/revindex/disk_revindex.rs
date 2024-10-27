@@ -422,7 +422,7 @@ impl RevIndexOps for RevIndex {
                 match_size,
                 gather_result_rank,
                 sum_weighted_found,
-                total_weighted_hashes.try_into().unwrap(),
+                total_weighted_hashes,
                 calc_abund_stats,
                 calc_ani_ci,
                 ani_confidence_interval_fraction,
