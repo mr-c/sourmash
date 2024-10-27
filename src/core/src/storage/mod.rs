@@ -314,7 +314,7 @@ impl Storage for FSStorage {
 
         let mut vs = Signature::from_reader(&mut &raw[..])?;
         if vs.len() > 1 {
-            unimplemented!("only one Signature currently allowed");
+            unimplemented!("only one Signature currently allowed when using 'load_sig'");
         }
         let sig = vs.swap_remove(0);
 

@@ -420,21 +420,19 @@ mod test {
     #[test]
     fn sigstore_sig_from_record_2() {
         use crate::manifest::Record;
-        use crate::storage::{ FSStorage, InnerStorage };
         use crate::selection::Selection;
+        use crate::storage::{FSStorage, InnerStorage};
 
         // load test sigs
         let mut filename = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        filename.push("../../tests/test-data/short.sig");
-
-        // CTB: this could probably be improved somehow...
+        filename.push("../../tests/test-data/short.sig.gz");
         let filename: String = filename.into();
         let filename_ref = filename.as_str();
 
         // load signatures
         let sigs = Signature::from_path(filename.clone()).expect("error loading");
 
-        // convert to records
+        // convert to records, loaded from 'short.sig.gz'.
         let records: Vec<Record> = sigs
             .into_iter()
             .flat_map(|v| Record::from_sig(&v, filename_ref))
@@ -444,22 +442,23 @@ mod test {
 
         // build a new collection using this manifest
         let manifest: Manifest = records.into();
-        let collection = Collection::new(manifest,
-                                         InnerStorage::new(
-                                             FSStorage::builder()
-                                                 .fullpath("../../tests/test-data/".into())
-                                                 .subdir("".into())
-                                                 .build())
+        let collection = Collection::new(
+            manifest,
+            InnerStorage::new(
+                FSStorage::builder()
+                    .fullpath("../../tests/test-data/".into())
+                    .subdir("".into())
+                    .build(),
+            ),
         );
 
-        let selection = Selection::builder().build();
+        // pull off first record
+        let v: Vec<_> = collection.iter().collect();
+        let (_idx, rec) = v.first().expect("no records in collection?!");
 
-        for (_idx, rec) in collection.iter() {
-            // need to pass select again here so we actually downsample
-            let this_sig = collection.sig_from_record(rec).unwrap().select(&selection).unwrap();
-            let this_mh = this_sig.minhash().unwrap();
-            assert_eq!(this_mh.scaled(), 2000);
-        }
+        // this will panic with "unimplemented" because there are two
+        // sketches and that is not supported.
+        let _first_sig = collection.sig_from_record(rec).expect("no sig!?");
     }
 
     #[test]
