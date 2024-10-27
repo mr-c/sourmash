@@ -151,7 +151,8 @@ impl LinearIndex {
             .internal_location()
             .into();
         let match_sig = self.collection.sig_for_dataset(dataset_id)?;
-        let result = self.stats_for_match(match_sig, query, match_size, match_path, round as u32)?;
+        let result =
+            self.stats_for_match(match_sig, query, match_size, match_path, round as u32)?;
         Ok(result)
     }
 
