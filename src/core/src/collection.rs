@@ -416,6 +416,52 @@ mod test {
         }
     }
 
+    // this test could probably be simpler
+    #[test]
+    fn sigstore_sig_from_record_2() {
+        use crate::manifest::Record;
+        use crate::storage::{ FSStorage, InnerStorage };
+        use crate::selection::Selection;
+
+        // load test sigs
+        let mut filename = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        filename.push("../../tests/test-data/short.sig");
+
+        // CTB: this could probably be improved somehow...
+        let filename: String = filename.into();
+        let filename_ref = filename.as_str();
+
+        // load signatures
+        let sigs = Signature::from_path(filename.clone()).expect("error loading");
+
+        // convert to records
+        let records: Vec<Record> = sigs
+            .into_iter()
+            .flat_map(|v| Record::from_sig(&v, filename_ref))
+            .collect();
+
+        eprintln!("{:?}", records);
+
+        // build a new collection using this manifest
+        let manifest: Manifest = records.into();
+        let collection = Collection::new(manifest,
+                                         InnerStorage::new(
+                                             FSStorage::builder()
+                                                 .fullpath("../../tests/test-data/".into())
+                                                 .subdir("".into())
+                                                 .build())
+        );
+
+        let selection = Selection::builder().build();
+
+        for (_idx, rec) in collection.iter() {
+            // need to pass select again here so we actually downsample
+            let this_sig = collection.sig_from_record(rec).unwrap().select(&selection).unwrap();
+            let this_mh = this_sig.minhash().unwrap();
+            assert_eq!(this_mh.scaled(), 2000);
+        }
+    }
+
     #[test]
     fn sigstore_selection_moltype_zip() {
         // load test sigs
