@@ -417,7 +417,7 @@ mod test {
     }
 
     #[test]
-    #[should_panic]              // for now...
+    #[should_panic] // for now...
     fn sigstore_sig_from_record_2() {
         let mut filename = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         filename.push("../../tests/test-data/short.sig.gz");
