@@ -12,13 +12,13 @@ use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
-use crate::_hash_murmur;
 use crate::encodings::HashFunctions;
 use crate::signature::SigsTrait;
 use crate::sketch::hyperloglog::HyperLogLog;
 use crate::Error;
+use crate::{ScaledType, _hash_murmur};
 
-pub fn max_hash_for_scaled(scaled: u64) -> u64 {
+pub fn max_hash_for_scaled(scaled: ScaledType) -> u64 {
     match scaled {
         0 => 0, // scaled == 0 indicates this is a num minhash
         1 => u64::MAX,
@@ -26,10 +26,10 @@ pub fn max_hash_for_scaled(scaled: u64) -> u64 {
     }
 }
 
-pub fn scaled_for_max_hash(max_hash: u64) -> u64 {
+pub fn scaled_for_max_hash(max_hash: u64) -> ScaledType {
     match max_hash {
         0 => 0, // scaled == 0 indicates this is a num minhash
-        _ => (u64::MAX as f64 / max_hash as f64) as u64,
+        _ => (u64::MAX as f64 / max_hash as f64) as ScaledType,
     }
 }
 
@@ -185,7 +185,7 @@ impl<'de> Deserialize<'de> for KmerMinHash {
 
 impl KmerMinHash {
     pub fn new(
-        scaled: u64,
+        scaled: ScaledType,
         ksize: u32,
         hash_function: HashFunctions,
         seed: u64,
@@ -230,7 +230,7 @@ impl KmerMinHash {
         self.max_hash
     }
 
-    pub fn scaled(&self) -> u64 {
+    pub fn scaled(&self) -> ScaledType {
         scaled_for_max_hash(self.max_hash)
     }
 
@@ -770,11 +770,11 @@ impl KmerMinHash {
     // this could be improved by generating an HLL estimate while sketching instead
     // (for scaled minhashes)
     pub fn n_unique_kmers(&self) -> u64 {
-        self.size() as u64 * self.scaled() // + (self.ksize - 1) for bp estimation
+        self.size() as u64 * self.scaled() as u64 // + (self.ksize - 1) for bp estimation
     }
 
     // create a downsampled copy of self
-    pub fn downsample_scaled(self, scaled: u64) -> Result<KmerMinHash, Error> {
+    pub fn downsample_scaled(self, scaled: ScaledType) -> Result<KmerMinHash, Error> {
         if self.scaled() == scaled || self.scaled() == 0 {
             Ok(self)
         } else if self.scaled() > scaled {
@@ -1115,7 +1115,7 @@ impl<'de> Deserialize<'de> for KmerMinHashBTree {
 
 impl KmerMinHashBTree {
     pub fn new(
-        scaled: u64,
+        scaled: ScaledType,
         ksize: u32,
         hash_function: HashFunctions,
         seed: u64,
@@ -1157,7 +1157,7 @@ impl KmerMinHashBTree {
         self.max_hash
     }
 
-    pub fn scaled(&self) -> u64 {
+    pub fn scaled(&self) -> ScaledType {
         scaled_for_max_hash(self.max_hash)
     }
 
@@ -1552,7 +1552,7 @@ impl KmerMinHashBTree {
     }
 
     // create a downsampled copy of self
-    pub fn downsample_scaled(self, scaled: u64) -> Result<KmerMinHashBTree, Error> {
+    pub fn downsample_scaled(self, scaled: ScaledType) -> Result<KmerMinHashBTree, Error> {
         if self.scaled() == scaled || self.scaled() == 0 {
             Ok(self)
         } else if self.scaled() > scaled {

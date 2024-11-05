@@ -12,6 +12,7 @@ use sourmash::sketch::minhash::{
     max_hash_for_scaled, scaled_for_max_hash, KmerMinHash, KmerMinHashBTree,
 };
 use sourmash::sketch::Sketch;
+use sourmash::ScaledType;
 
 // TODO: use f64::EPSILON when we bump MSRV
 const EPSILON: f64 = 0.01;
@@ -328,7 +329,7 @@ fn oracle_mins_scaled(hashes in vec(u64::ANY, 1..10000)) {
 proptest! {
 #[test]
 fn prop_merge(seq1 in "[ACGT]{6,100}", seq2 in "[ACGT]{6,200}") {
-    let scaled: u64 = 10;
+    let scaled: ScaledType = 10;
     let mut a = KmerMinHash::new(scaled, 6, HashFunctions::Murmur64Dna, 42, true, 0);
     let mut b = KmerMinHashBTree::new(scaled, 6, HashFunctions::Murmur64Dna, 42, true, 0);
 

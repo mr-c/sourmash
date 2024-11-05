@@ -812,7 +812,7 @@ impl Select for Signature {
             // keep compatible scaled if applicable
             valid = if let Some(sel_scaled) = selection.scaled() {
                 match s {
-                    Sketch::MinHash(mh) => valid && mh.scaled() <= sel_scaled as u64,
+                    Sketch::MinHash(mh) => valid && mh.scaled() <= sel_scaled,
                     // TODO: test LargeMinHash
                     // Sketch::LargeMinHash(lmh) => valid && lmh.scaled() <= sel_scaled as u64,
                     _ => valid, // other sketch types or invalid cases
@@ -841,8 +841,8 @@ impl Select for Signature {
             for sketch in self.signatures.iter_mut() {
                 // TODO: also account for LargeMinHash
                 if let Sketch::MinHash(mh) = sketch {
-                    if (mh.scaled() as u32) < sel_scaled {
-                        *sketch = Sketch::MinHash(mh.clone().downsample_scaled(sel_scaled as u64)?);
+                    if mh.scaled() < sel_scaled {
+                        *sketch = Sketch::MinHash(mh.clone().downsample_scaled(sel_scaled)?);
                     }
                 }
             }

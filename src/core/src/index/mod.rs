@@ -33,7 +33,7 @@ use crate::Result;
 #[derive(TypedBuilder, CopyGetters, Getters, Setters, Serialize, Deserialize, Debug, PartialEq)]
 pub struct GatherResult {
     #[getset(get_copy = "pub")]
-    intersect_bp: usize,
+    intersect_bp: u64,
 
     #[getset(get_copy = "pub")]
     f_orig_query: f64,
@@ -72,22 +72,22 @@ pub struct GatherResult {
     f_match_orig: f64,
 
     #[getset(get_copy = "pub")]
-    unique_intersect_bp: usize,
+    unique_intersect_bp: u64,
 
     #[getset(get_copy = "pub")]
-    gather_result_rank: usize,
+    gather_result_rank: u32,
 
     #[getset(get_copy = "pub")]
-    remaining_bp: usize,
+    remaining_bp: u64,
 
     #[getset(get_copy = "pub")]
-    n_unique_weighted_found: usize,
+    n_unique_weighted_found: u64,
 
     #[getset(get_copy = "pub")]
-    total_weighted_hashes: usize,
+    total_weighted_hashes: u64,
 
     #[getset(get_copy = "pub")]
-    sum_weighted_found: usize,
+    sum_weighted_found: u64,
 
     #[getset(get_copy = "pub")]
     query_containment_ani: f64,
@@ -212,9 +212,9 @@ pub fn calculate_gather_stats(
     remaining_query: KmerMinHash,
     match_sig: SigStore,
     match_size: usize,
-    gather_result_rank: usize,
-    sum_weighted_found: usize,
-    total_weighted_hashes: usize,
+    gather_result_rank: u32,
+    sum_weighted_found: u64,
+    total_weighted_hashes: u64,
     calc_abund_stats: bool,
     calc_ani_ci: bool,
     confidence: Option<f64>,
@@ -242,17 +242,18 @@ pub fn calculate_gather_stats(
     trace!("query.size: {}", remaining_query.size());
 
     //bp remaining in subtracted query
-    let remaining_bp = (remaining_query.size() - isect_size) * remaining_query.scaled() as usize;
+    let remaining_bp =
+        (remaining_query.size() - isect_size) as u64 * remaining_query.scaled() as u64;
 
     // stats for this match vs original query
     let (intersect_orig, _) = match_mh.intersection_size(orig_query).unwrap();
-    let intersect_bp = (match_mh.scaled() * intersect_orig) as usize;
+    let intersect_bp = match_mh.scaled() as u64 * intersect_orig;
     let f_orig_query = intersect_orig as f64 / orig_query.size() as f64;
     let f_match_orig = intersect_orig as f64 / match_mh.size() as f64;
 
     // stats for this match vs current (subtracted) query
     let f_match = match_size as f64 / match_mh.size() as f64;
-    let unique_intersect_bp = match_mh.scaled() as usize * isect_size;
+    let unique_intersect_bp = match_mh.scaled() as u64 * isect_size as u64;
     let f_unique_to_query = isect_size as f64 / orig_query.size() as f64;
 
     // // get ANI values
@@ -309,7 +310,7 @@ pub fn calculate_gather_stats(
             }
         };
 
-        n_unique_weighted_found = unique_weighted_found as usize;
+        n_unique_weighted_found = unique_weighted_found;
         sum_total_weighted_found = sum_weighted_found + n_unique_weighted_found;
         f_unique_weighted = n_unique_weighted_found as f64 / total_weighted_hashes as f64;
 
