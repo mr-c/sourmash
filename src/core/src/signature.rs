@@ -445,14 +445,13 @@ fn default_version() -> f64 {
 }
 
 impl Signature {
-    pub fn name(&self) -> String {
-        if let Some(name) = &self.name {
-            name.clone()
-        } else if let Some(filename) = &self.filename {
-            filename.clone()
-        } else {
-            self.md5sum()
-        }
+    pub fn name(&self) -> Option<String> {
+        self.name.clone()
+    }
+
+    /// return name, if not None; or "" if None.
+    pub fn name_str(&self) -> String {
+        self.name().unwrap_or("".into())
     }
 
     pub fn set_name(&mut self, name: &str) {
@@ -982,6 +981,8 @@ mod test {
         assert_eq!(sig.signatures[0].size(), 3);
         assert_eq!(sig.signatures[1].size(), 2);
         assert_eq!(sig.signatures[2].size(), 1);
+
+        assert_eq!(sig.name_str(), "");
     }
 
     #[test]
